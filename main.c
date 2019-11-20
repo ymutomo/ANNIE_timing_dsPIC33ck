@@ -46,12 +46,17 @@
   Section: Included Files
 */
 #include "mcc_generated_files/system.h"
+#include "string.h"
 
 /*
                          Main application
  */
 int main(void)
 {
+    char tempstring[100];
+    int tempstring_length = 0;
+    char command[100];
+    int command_value;
     // initialize the device
     SYSTEM_Initialize();
     SCCP1_CAPTURE_Start();
@@ -59,7 +64,25 @@ int main(void)
     while (1)
     {
         if (UART1_IsRxReady()) {
-            printf("Just got %d \r\n",(uint8_t)UART1_Read());
+            uint8_t temp = UART1_Read();
+            if (temp == 13) {
+                printf("OMG! You pressed Enter!\r\n");
+                if (strcmp(tempstring,"Jonathan")==0) {
+                    printf("That's one cool guy!\r\n");
+                }
+                if (sscanf(tempstring,"%s %d", command, &command_value)==2) {
+                    printf("You've sent command %s",command);
+                    printf(" with value %d\r\n",command_value);
+                }
+                tempstring[tempstring_length] = 0;
+                printf(tempstring);
+                printf("\r\n");
+                tempstring_length = 0;
+            }else{
+                tempstring[tempstring_length++] = temp;
+                printf("Just got %d \r\n",temp);
+                printf("%c",temp);
+            }
         }
         if (!SCCP1_CAPTURE_IsBufferEmpty()) {
             printf("Got an event at %d \r\n",SCCP1_CAPTURE_Data32Read());
